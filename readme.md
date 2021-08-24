@@ -9,11 +9,13 @@ Next, run YS-CI.yml the same way as above. This pipeline will cycle the data, si
 
 *The first run will always return y.*
 
+Now, we also need to rename the pipeline created here, so the CD pipeline knows to run whenever the CI pipeline is run. Under the Pipelines page, rename the CI pipeline to 'Aviation MLOps CI', without quotes.
+
 ## Continuous Deployment
 Now, create the CD pipeline using YS-CD.yml, but during the Review step, go to line 43 and click on 'Show Assistant'. Then, find 'Download build artifacts', click on 'Specific build', and select the current project. For 'Build pipeline', select the CI pipeline created and run on the previous step. Then, under 'Artifact name', type 'newmodel', without the quotes. Make sure that the indentation of the new block of code is two tabs in, or four spaces. This will tell the CD pipeline to look at the specific CI pipeline to look for the artifact, which tells the CD pipeline whether to update the model or not. Now, we are able to run this pipeline. The body of the .yml file should look like this:
 ![Instructions](CD_Instructions.png)
 
-This pipeline will deploy our registered model to ACI, which will allow us to make inferences using an endpoint URI. The URI will be printed in the "Deploy to ACI (Python)" step of the pipeline, and can also be found under Endpoints in Azure Machine Learning portal. As better models are registered, this URI will stay put, while serving the latest version of the model.
+This pipeline will deploy our registered model to ACI, which will allow us to make inferences using an endpoint URI. The URI will be printed in the "Deploy to ACI (Python)" step of the pipeline, and can also be found under Endpoints in Azure Machine Learning portal. As better models are registered, this URI will stay put, while serving the latest version of the model. 
 
 ## Flask Deployment
 Replace the scoring_uri variable in Flask's app.py with the URI generated from the previous step. With Azure App Services extension installed in VSC, click on "Create New Web App...", name your app, and allow it to deploy. It may take a while, but once it is done, the generated web app will allow users to make inferences with the latest version of this model.
