@@ -1,0 +1,52 @@
+# Continuous Integration (CI) pipeline that orchestrates the deployment of the AviationMLOps model.
+
+# Runtime parameters to select artifacts
+parameters:
+- name : artifactBuildId
+  displayName: Model Train CI Build ID. Default is 'latest'.
+  type: string
+  default: latest
+
+pr: none
+
+# Trigger this pipeline on model-train pipeline completion
+trigger: none
+resources:
+  containers:
+  - container: mlops
+    image: mcr.microsoft.com/mlops/python:latest
+  pipelines:
+  - pipeline: model-train-ci
+    source: Aviation MLOps CI # Name of the triggering pipeline
+    trigger:
+      branches:
+        include:
+        - master
+
+variables:
+- template: AviationMLOps-variables-template.yml
+- group: devopsforai-aml-vg
+
+pool:
+  vmImage: 'ubuntu-latest'
+
+stages:
+- stage: 'Deploy_ACI'
+  displayName: 'Deploy to ACI'
+  condition: variables['ACI_DEPLOYMENT_NAME']
+  jobs:
+  - job: "Deploy_ACI"
+    displayName: "Deploy to ACI"
+    container: mlops
+    timeoutInMinutes: 0
+    steps:
+
+    - task: AzureCLI@1
+      displayName: 'Deploy to ACI (Python)'
+      inputs:
+        azureSubscription: '$(WORKSPACE_SVC_CONNECTION)'
+        scriptLocation: inlineScript
+        workingDirectory: $(Build.SourcesDirectory)
+        inlineScript: |
+          export SUBSCRIPTION_ID=$(az account show --query id -o tsv)
+          python -m code.deploy --new_model $(cat $(System.ArtifactsDirectory)/newmodel.txt)

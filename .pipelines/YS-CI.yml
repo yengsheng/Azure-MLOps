@@ -1,0 +1,68 @@
+
+resources:
+  containers:
+  - container: mlops
+    image: mcr.microsoft.com/mlops/python:latest
+
+pr: none
+
+trigger: none
+
+schedules:
+- cron: "25 6 * * *"
+  displayName: Daily midnight build
+  branches:
+    include:
+    - master
+
+variables:
+- group: devopsforai-aml-vg
+
+pool:
+  vmImage: ubuntu-latest
+
+stages:
+- stage: Cycle_Data
+  jobs:
+  - job: Cycle_Data 
+    displayName: Periodic Cycling of Data
+    container: mlops
+    steps:
+    - template: ./templates/data_cycler.yml
+
+- stage: Retrain_Model
+  jobs:
+  - job: Retrain_Model 
+    displayName: Retrain Model and Reregister if accuracy increases
+    container: mlops
+    steps:
+    - task: AzureCLI@1
+      inputs:
+        azureSubscription: '$(WORKSPACE_SVC_CONNECTION)'
+        scriptLocation: inlineScript
+        workingDirectory: $(Build.SourcesDirectory)
+        inlineScript: |
+          set -e # fail on error
+          export SUBSCRIPTION_ID=$(az account show --query id -o tsv)
+          # Invoke the Python code for first data ingestion
+          python -m code.train --output_new_register_file "new_registration.txt"
+          NEW_MODEL="$(cat new_registration.txt)"
+          echo $NEW_MODEL >newmodel.txt
+      displayName: 'Training and registering model'
+    - task: PublishPipelineArtifact@1
+      inputs:
+        targetPath: $(Build.SourcesDirectory)/newmodel.txt
+        artifactName: newmodel
+        
+    # - task: DownloadPipelineArtifact@2
+    #   inputs:
+    #     artifact: newmodel
+
+    # - task: AzureCLI@1
+    #   inputs:
+    #     artifact: newmodel
+    #     azureSubscription: '$(WORKSPACE_SVC_CONNECTION)'
+    #     scriptLocation: inlineScript
+    #     workingDirectory: $(Build.SourcesDirectory)
+    #     inlineScript: |
+    #       cat $(Pipeline.Workspace)/newmodel.txt

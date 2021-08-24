@@ -1,0 +1,12 @@
+steps:
+- task: AzureCLI@1
+  inputs:
+    azureSubscription: '$(WORKSPACE_SVC_CONNECTION)'
+    scriptLocation: inlineScript
+    workingDirectory: $(Build.SourcesDirectory)
+    inlineScript: |
+      set -e # fail on error
+      export SUBSCRIPTION_ID=$(az account show --query id -o tsv)
+      # Invoke the Python code for first data ingestion
+      python -m code.data_cycler
+  displayName: 'Cycling of data'

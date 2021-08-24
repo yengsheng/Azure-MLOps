@@ -1,0 +1,35 @@
+# Continuous Integration (CI) pipeline that orchestrates the training, evaluation, and registration of the AviationMLOps model.
+
+resources:
+  containers:
+  - container: mlops
+    image: mcr.microsoft.com/mlops/python:latest
+
+pr: none
+
+trigger: none
+
+variables:
+- template: AviationMLOps-variables-template.yml
+- group: devopsforai-aml-vg
+
+pool:
+  vmImage: ubuntu-latest
+
+jobs:
+- job: "First_Ingestion_Pipeline"
+  displayName: "First Ingestion Pipeline"
+  container: mlops
+  timeoutInMinutes: 0
+  steps:
+  - task: AzureCLI@1
+    inputs:
+      azureSubscription: '$(WORKSPACE_SVC_CONNECTION)'
+      scriptLocation: inlineScript
+      workingDirectory: $(Build.SourcesDirectory)
+      inlineScript: |
+        set -e # fail on error
+        export SUBSCRIPTION_ID=$(az account show --query id -o tsv)
+        # Invoke the Python code for first data ingestion
+        python -m code.first_ingestion
+    displayName: 'First code ingestion'
