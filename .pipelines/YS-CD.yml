@@ -33,7 +33,6 @@ pool:
 stages:
 - stage: 'Deploy_ACI'
   displayName: 'Deploy to ACI'
-  condition: variables['ACI_DEPLOYMENT_NAME']
   jobs:
   - job: "Deploy_ACI"
     displayName: "Deploy to ACI"
