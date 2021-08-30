@@ -86,7 +86,7 @@ def main():
         with open(args.output_new_register_file, "w") as out_file:
                 out_file.write('y')
     else:
-        print('New model does not have a higher accuracy, hence model trained is not registered')
+        print('The new model does not have a higher accuracy, hence model trained is not registered')
         with open(args.output_new_register_file, "w") as out_file:
                 out_file.write('n')
 
