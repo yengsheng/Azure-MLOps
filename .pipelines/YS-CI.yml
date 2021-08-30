@@ -6,7 +6,8 @@ resources:
 
 pr: none
 
-trigger: none
+trigger:
+- master
 
 schedules:
 - cron: "25 6 * * *"
