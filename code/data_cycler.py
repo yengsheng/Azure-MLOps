@@ -12,19 +12,6 @@ def main():
     )
     print(ws.name, 'loaded.')
     default_ds = ws.get_default_datastore()
-    # directory = './data/'
-    # default_ds.upload_files(files=['./data/aviation_main.csv',
-    #                                 './data/aviation_inflow.csv'],
-    #                     target_path = 'aviation-data/',
-    #                     overwrite = True,
-    #                     show_progress = True)
-    # csv_paths = [(default_ds, 'aviation-data/aviation_inflow.csv')]
-    # tab_ds = Dataset.Tabular.from_delimited_files(path=csv_paths)
-    # tab_ds = tab_ds.register(workspace=ws, name='inflow')
-    
-    # csv_paths = [(default_ds, 'aviation-data/aviation_main.csv')]
-    # tab_ds = Dataset.Tabular.from_delimited_files(path=csv_paths)
-    # tab_ds = tab_ds.register(workspace=ws, name='main')
 
     main_ds = Dataset.get_by_name(ws, name='main').to_pandas_dataframe()
     inflow_ds = Dataset.get_by_name(ws, name='inflow').to_pandas_dataframe()

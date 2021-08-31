@@ -11,7 +11,7 @@ trigger:
 
 schedules:
 - cron: "25 6 * * *"
-  displayName: Daily midnight build
+  displayName: Daily build
   branches:
     include:
     - master
@@ -54,16 +54,3 @@ stages:
       inputs:
         targetPath: $(Build.SourcesDirectory)/newmodel.txt
         artifactName: newmodel
-        
-    # - task: DownloadPipelineArtifact@2
-    #   inputs:
-    #     artifact: newmodel
-
-    # - task: AzureCLI@1
-    #   inputs:
-    #     artifact: newmodel
-    #     azureSubscription: '$(WORKSPACE_SVC_CONNECTION)'
-    #     scriptLocation: inlineScript
-    #     workingDirectory: $(Build.SourcesDirectory)
-    #     inlineScript: |
-    #       cat $(Pipeline.Workspace)/newmodel.txt
